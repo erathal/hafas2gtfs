@@ -16,7 +16,7 @@ Options:
 import os
 from datetime import datetime,timedelta
 
-import unicodecsv
+import unicodecsv as csv
 from pyproj import Proj
 from bitstring import Bits
 
@@ -311,7 +311,7 @@ class Hafas2GTFS(object):
     def make_gtfs_files(self):
         self.files = {}
         for gtfs_file, columns in GTFS_FILES.items():
-            self.files[gtfs_file] = unicodecsv.DictWriter(
+            self.files[gtfs_file] = csv.DictWriter(
                 file(os.path.join(self.out_dir, gtfs_file), 'w'),
                 columns
             )
@@ -465,7 +465,8 @@ class Hafas2GTFS(object):
               'stop_id': int(line[:7]),
               'stop_lon': line[9:18].strip(),
               'stop_lat': line[20:29].strip(),
-              'stop_name': line[39:].strip().decode('iso-8859-1').encode('utf8')
+              #'stop_name': line[39:].strip().decode('iso-8859-1').encode('utf8')
+              'stop_name': line[39:].strip()
             }
             self.write_stop(bla)
 
@@ -483,7 +484,8 @@ class Hafas2GTFS(object):
     def parse_infotext(self):
       infotext = {}
       for line in file(self.get_path(self.get_name('INFOTEXT_DE'))):
-        infotext[line[0:7]] = line[8:].strip().decode('iso-8859-1').encode('utf8')
+        #infotext[line[0:7]] = line[8:].strip().decode('iso-8859-1').encode('utf8')
+        infotext[line[0:7]] = line[8:].strip()
 
       return infotext
 
@@ -494,7 +496,7 @@ class Hafas2GTFS(object):
         curtripid = 0
         service_id = 0
         for line in file(self.get_path(self.get_name('FPLAN'))):
-            line = line.decode('latin1')
+            #line = line.decode('latin1')
             linenumber = linenumber +1
             if line.startswith('%'):
                 continue
@@ -536,7 +538,17 @@ class Hafas2GTFS(object):
             return None
         #print time_str
         # TODO: include seconds if present
-        return (int(time_str[0:2]), int(time_str[2:4]))
+        return (self.interpret_string(time_str[0:2]), self.interpret_string(time_str[2:4]))
+    
+    def interpret_string(self,s):
+      if not isinstance(s, basestring):
+        return None
+      if s.isdigit():
+        return int(s)
+      try:
+        return float(s)
+      except ValueError:
+        return None
 
     def parse_fplan_meta(self, line):
         if hasattr(self, 'parse_fplan_meta_%s' % line[1]):
