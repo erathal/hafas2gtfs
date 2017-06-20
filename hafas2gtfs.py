@@ -536,7 +536,7 @@ class Hafas2GTFS(object):
             return None
         #print time_str
         # TODO: include seconds if present
-        return (int(time_str[0:2]), int(time_str[2:4]))
+        return (int(float(time_str[0:2]), int(time_str[2:4])))
 
     def parse_fplan_meta(self, line):
         if hasattr(self, 'parse_fplan_meta_%s' % line[1]):
