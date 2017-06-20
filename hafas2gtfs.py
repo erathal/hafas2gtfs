@@ -536,9 +536,9 @@ class Hafas2GTFS(object):
             return None
         #print time_str
         # TODO: include seconds if present
-        return (interpret_string(time_str[0:2]), interpret_string(time_str[2:4]))
+        return (self.interpret_string(time_str[0:2]), self.interpret_string(time_str[2:4]))
     
-    def interpret_string(s):
+    def interpret_string(self,s):
       if not isinstance(s, basestring):
         return None
       if s.isdigit():
